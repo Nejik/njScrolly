@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    .items {
+      width: 550px;
+      overflow: hidden;
+      overflow-x: auto;
+      display: flex;
+      margin-top: 200px;
+      margin-left: 200px;
+      
+    }
+    .item {
+      min-width: 150px;
+      height: 100px;
+      background-color: tomato;
+      margin-right: 10px;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div class="items">
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+  </div>
+  
+  <script type="module">
+    import njScrolly from '../dist/njScrolly.esm.js'
+    const scrolly = new njScrolly('.items');
+  </script>
+</body>
+</html>
