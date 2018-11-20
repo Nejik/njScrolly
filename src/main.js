@@ -19,7 +19,6 @@ export default class njScrolly {
 		this.currentX = null;
 
 		this.handlers = {};
-		this.mouseMoveListenersAdded = false;
 
 		let options = {};
 		if (typeof opts === 'string') {
@@ -71,15 +70,6 @@ export default class njScrolly {
 		} while (current.parentNode);
 	}
 	addListeners() {
-		this.els.wrap.addEventListener('mouseenter', this.handlers.wrapMouseenter = (e) => {
-			this.listenMove();
-		})
-		this.els.wrap.addEventListener('mouseleave', this.handlers.wrapMouseleave = (e) => {
-			this.unlistenMove();
-		})
-	}
-	listenMove() {
-		if (this.mouseMoveListenersAdded) return;
 		document.addEventListener('mousedown', this.handlers.mousedown = (e) => {
 			if (!this.closest(e.target, this.els.wrap)) {
 				//move only inside wrap component
@@ -91,14 +81,14 @@ export default class njScrolly {
 			this.initialScrollLeft = this.els.wrap.scrollLeft;
 
 			e.preventDefault();
-			e.stopPropagation();
+			// e.stopPropagation();
 		});
 
 		document.addEventListener('mousemove', this.handlers.mousemove = (e) => {
 			if (!this.moveStarted) {
 				return;
 			}
-			
+
 			if (typeof e.buttons === 'number' && e.buttons === 0) {
 				stopMove();
 				return;
@@ -117,30 +107,18 @@ export default class njScrolly {
 			this.currentX = null
 			this.x = null;
 			this.initialScrollLeft = null;
-			
+
 			this.moveStarted = false;
-			this.unlistenMove();
+			// this.unlistenMove();
 		}
-		
-		this.mouseMoveListenersAdded = true;
 	}
-	unlistenMove() {
-		if(this.moveStarted) return;
-		if (!this.mouseMoveListenersAdded) return;
+	removeListeners() {
 		document.removeEventListener('mousedown', this.handlers.mousedown)
 		delete this.handlers.mousedown;
 		document.removeEventListener('mousemove', this.handlers.mousemove)
 		delete this.handlers.mousemove;
 		document.removeEventListener('mouseup', this.handlers.mouseup)
 		delete this.handlers.mouseup;
-		this.mouseMoveListenersAdded = false;
-	}
-	removeListeners() {
-		this.els.wrap.removeEventListener('mousedown', this.handlers.wrapMouseenter)
-		delete this.handlers.wrapMouseenter;
-		
-		this.els.wrap.removeEventListener('mouseleave', this.handlers.wrapMouseleave)
-		delete this.handlers.wrapMouseleave;
 	}
 }
 
