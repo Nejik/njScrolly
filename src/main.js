@@ -91,7 +91,7 @@ export default class njScrolly {
 
 		document.addEventListener('mouseup', this.handlers.mouseup = (e) => {
 			
-			if (this.o.fixLinks) {
+			if (Math.abs(this.diff) > this.o.minDiff && this.o.fixLinks) {
 				//try to prevent default link(a tag)
 				document.addEventListener('click', this.handlers.dragclick = (e) => {
 					if (!e.target.tagName.toUpperCase() === 'A') return;
@@ -104,6 +104,7 @@ export default class njScrolly {
 
 				//wait 50ms for click event to prevent link href behaviour
 				setTimeout(() => {
+					if(!this.handlers.dragclick) return;
 					document.removeEventListener('click', this.handlers.dragclick);
 					delete this.handlers.dragclick;
 				}, 50);
@@ -164,5 +165,6 @@ export default class njScrolly {
 
 const _defaults = {
 	el: undefined,
-	fixLinks: true
+	fixLinks: true,
+	minDiff: 5
 }
