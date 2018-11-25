@@ -13,10 +13,10 @@ export default class njScrolly {
 		window.addEventListener('touchmove', function () {});
 
 		this.els = {};
-		this.moveStarted = false;
-		this.initialX = null;
-		this.initialScrollLeft = null;
-		this.currentX = null;
+		this.moveStarted;
+		this.initialX;
+		this.initialScrollLeft;
+		this.currentX;
 
 		this.handlers = {};
 
@@ -41,10 +41,7 @@ export default class njScrolly {
 
 		this.addListeners();
 	}
-	destroy() {
 
-		this.removeListeners();
-	}
 	gatherElements() {
 		this.els = {};
 
@@ -58,6 +55,96 @@ export default class njScrolly {
 			return false;
 		}
 	}
+	addListeners() {
+		this.els.wrap.addEventListener('mousedown', this.handlers.mousedown = (e) => {
+			if (!this.closest(e.target, this.els.wrap)) {
+				//move only inside wrap component
+				return;
+			}
+
+			this.moveStarted = true;
+			this.initialX = e.pageX;
+			this.currentX = e.pageX;
+			this.initialScrollLeft = this.els.wrap.scrollLeft;
+
+			e.preventDefault();
+
+			this.startMoveListen();
+		});
+	}
+	startMoveListen() {
+		if (this.moveHandlers) return;
+		document.addEventListener('mousemove', this.handlers.mousemove = (e) => {
+			if (!this.moveStarted) {
+				return;
+			}
+
+			if (typeof e.buttons === 'number' && e.buttons === 0) {
+				stopMove();
+				return;
+			}
+
+			this.currentX = e.pageX;
+			this.diff = this.initialX - this.currentX;
+			this.els.wrap.scrollLeft = this.initialScrollLeft + this.diff;
+		});
+
+		document.addEventListener('mouseup', this.handlers.mouseup = (e) => {
+			
+			if (this.o.fixLinks) {
+				//try to prevent default link(a tag)
+				document.addEventListener('click', this.handlers.dragclick = (e) => {
+					if (!e.target.tagName.toUpperCase() === 'A') return;
+					if (!this.closest(e.target, this.els.wrap)) return;
+
+					e.preventDefault();
+					document.removeEventListener('click', this.handlers.dragclick);
+					delete this.handlers.dragclick;
+				});
+
+				//wait 50ms for click event to prevent link href behaviour
+				setTimeout(() => {
+					document.removeEventListener('click', this.handlers.dragclick);
+					delete this.handlers.dragclick;
+				}, 50);
+			}
+
+			stopMove();
+		});
+
+		const stopMove = () => {
+			if (!this.moveStarted) return;
+			this.initialX = null;
+			this.currentX = null
+			this.diff = null;
+			this.initialScrollLeft = null;
+
+			this.moveStarted = false;
+
+			this.stopMoveListen();
+		}
+
+		this.moveHandlers = true;
+	}
+	stopMoveListen() {
+		document.removeEventListener('mousemove', this.handlers.mousemove)
+		delete this.handlers.mousemove;
+		document.removeEventListener('mouseup', this.handlers.mouseup)
+		delete this.handlers.mouseup;
+
+		this.moveHandlers = false;
+	}
+	removeListeners() {
+		this.stopMoveListen();
+
+		this.els.wrap.addEventListener('mousedown', this.handlers.mousedown);
+		delete this.handlers.mousedown;
+
+		if (this.handlers.dragclick) {
+			document.removeEventListener('click', this.handlers.dragclick);
+			delete this.handlers.dragclick;
+		}
+	}
 	closest(el, target) {
 		if (!el || !target) return;
 		let current = el;
@@ -69,59 +156,13 @@ export default class njScrolly {
 			current = current.parentNode
 		} while (current.parentNode);
 	}
-	addListeners() {
-		document.addEventListener('mousedown', this.handlers.mousedown = (e) => {
-			if (!this.closest(e.target, this.els.wrap)) {
-				//move only inside wrap component
-				return;
-			}
-			this.moveStarted = true;
-			this.initialX = e.pageX;
-			this.currentX = e.pageX;
-			this.initialScrollLeft = this.els.wrap.scrollLeft;
+	destroy() {
 
-			e.preventDefault();
-			// e.stopPropagation();
-		});
-
-		document.addEventListener('mousemove', this.handlers.mousemove = (e) => {
-			if (!this.moveStarted) {
-				return;
-			}
-
-			if (typeof e.buttons === 'number' && e.buttons === 0) {
-				stopMove();
-				return;
-			}
-			this.currentX = e.pageX;
-			this.x = this.initialX - this.currentX;
-			this.els.wrap.scrollLeft = this.initialScrollLeft + this.x;
-		});
-
-		document.addEventListener('mouseup', this.handlers.mouseup = (e) => {
-			stopMove();
-		});
-		const stopMove = () => {
-			if (!this.moveStarted) return;
-			this.initialX = null;
-			this.currentX = null
-			this.x = null;
-			this.initialScrollLeft = null;
-
-			this.moveStarted = false;
-			// this.unlistenMove();
-		}
-	}
-	removeListeners() {
-		document.removeEventListener('mousedown', this.handlers.mousedown)
-		delete this.handlers.mousedown;
-		document.removeEventListener('mousemove', this.handlers.mousemove)
-		delete this.handlers.mousemove;
-		document.removeEventListener('mouseup', this.handlers.mouseup)
-		delete this.handlers.mouseup;
+		this.removeListeners();
 	}
 }
 
 const _defaults = {
-	el: undefined
+	el: undefined,
+	fixLinks: true
 }
