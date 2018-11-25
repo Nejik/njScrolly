@@ -91,7 +91,7 @@ export default class njScrolly {
 
 		document.addEventListener('mouseup', this.handlers.mouseup = (e) => {
 			
-			if (Math.abs(this.diff) > this.o.minDiff && this.o.fixLinks) {
+			if (Math.abs(this.diff) > this.o.diffThreshold && this.o.preventLinks) {
 				//try to prevent default link(a tag)
 				document.addEventListener('click', this.handlers.dragclick = (e) => {
 					if (!e.target.tagName.toUpperCase() === 'A') return;
@@ -136,10 +136,10 @@ export default class njScrolly {
 		this.moveHandlers = false;
 	}
 	removeListeners() {
-		this.stopMoveListen();
-
-		this.els.wrap.addEventListener('mousedown', this.handlers.mousedown);
+		this.els.wrap.removeEventListener('mousedown', this.handlers.mousedown);
 		delete this.handlers.mousedown;
+		
+		this.stopMoveListen();
 
 		if (this.handlers.dragclick) {
 			document.removeEventListener('click', this.handlers.dragclick);
@@ -165,6 +165,6 @@ export default class njScrolly {
 
 const _defaults = {
 	el: undefined,
-	fixLinks: true,
-	minDiff: 5
+	preventLinks: true,
+	diffThreshold: 5
 }
